@@ -1,23 +1,27 @@
-import logo from './logo.svg';
 import './App.css';
+import React from 'react';
+import Station from './Components/Station'
+import Box from './Components/Box'
+import Gamecube from './Components/Gamecube'
+import Nintendo from './Components/Nintendo'
 
-function App() {
+const App = () => {
+  const getMouseData = (event) => {
+    console.log(event)
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+      <header>
+        <h1>Choose a stage!</h1>
       </header>
+      <div className='grid'>
+        <Station data={getMouseData} />
+        <Box data={getMouseData} />
+        <Gamecube data={getMouseData} />
+        <Nintendo data={getMouseData} />
+      </div>
+      <button onClick={getMouseData}>Click</button>
     </div>
   );
 }

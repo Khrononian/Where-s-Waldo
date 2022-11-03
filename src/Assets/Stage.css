@@ -1,0 +1,13 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 250px));
+    gap: 8px;
+    justify-content: center;
+}
+
+button {
+    background: transparent;
+    border-color: transparent;
+    cursor: pointer;
+    width: 250px;
+}

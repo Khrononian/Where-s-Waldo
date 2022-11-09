@@ -21,7 +21,7 @@ header {
   width: 100%;
 }
 
-.block {
+/* .block {
   display: flex;
   flex-direction: column;
   background: silver;
@@ -38,7 +38,7 @@ header {
 
 .block button:hover {
   background: lightblue
-}
+} */
 
 .characters {
   display: flex;

@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from "react";
+import Timer from "./Timer";
 import { useLocation, Link } from "react-router-dom";
 import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, addDoc } from 'firebase/firestore'
+import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore'
 import { getAnalytics } from 'firebase/analytics'
 import '../Assets/Selection.css'
 
 const Selection = (props, { selected }) => {
     const location = useLocation()
-    const [counter, setCounter] = useState(0);
     const [mousePos, setMousePos] = useState({})
-
-    useEffect(() => {
-        setInterval(() => {
-            setCounter(count => count + 1)
-        }, 1000)
-    }, [])
+    const [boxHeight, setBoxHeight] = useState(10)
+    const [trigger, setTrigger] = useState(false)
 
     const firebaseConfig = {
         apiKey: "AIzaSyB_ufhPEnldDS-sbGJKUcO-gRkCfyRbtx0",
@@ -26,16 +22,36 @@ const Selection = (props, { selected }) => {
         measurementId: "G-FV3HEYK898"
     };
     const app = initializeApp(firebaseConfig)
-    const analytics = getAnalytics(app)
+    const db = getFirestore(app)
     // console.log('FIREBASE', analytics)
-
-    const time = () => {
-        const getSeconds = `0${counter % 60}`.slice(-2);
-        const getMinutes = `0${Math.floor(counter / 60) % 60}`.slice(-2)
-        const getHours = `0${Math.floor(counter / 3600)}`.slice(-2)
-
-        return `${getHours} : ${getMinutes} : ${getSeconds}`
+    const ContainerStyle = {
+        position: 'relative',
+        height: `${boxHeight}px`
     }
+
+    const FoundCharacter = {
+        name: ''
+    }
+
+    const selectedData = async event => {
+        const characterData = await getDocs(collection(db, `${location.state.console}`))
+
+        // USE THIS FOR THE NAME OF THE BUTTON CLICKED (EVENT.TARGET.INNERTEXT)
+        // TRY AUTH TO SEE IF IT CHANGES ANYTHING
+        characterData.forEach((doc) => {
+            console.log(event, mousePos, doc.data())
+            if (mousePos.x >= doc.data().firstX && mousePos.x <= doc.data().secondX) {
+                FoundCharacter.name = event.target.innerText
+                setTrigger(true)
+                event.target.remove()
+            } 
+        }) 
+        
+        
+        // USE GETDOCS TO ACCESS CHARACTER POSITIONING NUMS
+        // ALSO PUT THE NAME OF THE SELECTED CONSOLE IN THE LOCATON PASS
+    }
+
 
     // NUMS FOR CHARACTERS
     // PS2
@@ -70,21 +86,25 @@ const Selection = (props, { selected }) => {
                 <div>
                     <Link to={'/'}>Home</Link>
                 </div>
-                <div>
-                    <p className="timer">{time()}</p>
-                </div>
+                <Timer />
                 <div>
                     <img className="nav-img" src={location.state.left} alt='Selected'/>
                     <img className="nav-img" src={location.state.middle} alt='Selected'/>
                     <img className="nav-img" src={location.state.right} alt='Selected'/>
                 </div>
             </nav>
-            <div className="" style={{position: 'relative', height: 100 + 'px'}}>
+            <div className="" style={ContainerStyle}>
                 <img onClick={getClickData} className='image' src={window.localStorage.getItem('selected')} alt="Xbox" />
                 <div className='block' style={{position: 'absolute', left: mousePos.x + 15 + 'px', top: mousePos.y - 90 + 'px', }}>
-                    <button className='btns'>Name</button>
-                    <button className='btns'>New Name</button>
-                    <button className='btns'>Xtra Name</button>
+                    <button className='btns' onClick={selectedData}>{location.state.characters[0]}</button>
+                    <button className='btns' onClick={selectedData}>{location.state.characters[1]}</button>
+                    <button className='btns' onClick={selectedData}>{location.state.characters[2]}</button>
+                </div>
+                <div className="" >
+                    {trigger === false ? 'Wrong character, keep looking!' : 
+                    `You found ${FoundCharacter.name}`
+                    }
+                    {console.log(trigger)}
                 </div>
             </div>
             

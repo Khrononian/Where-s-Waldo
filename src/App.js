@@ -2,8 +2,7 @@ import './App.css';
 import React, { useState, } from 'react';
 import Stages from './Components/Stages'
 import Selection from './Components/Selection'
-import Gamecube from './Components/Gamecube'
-import Nintendo from './Components/Nintendo'
+import Timer from './Components/Timer'
 
 const App = () => {
   const [image, setImage] = useState('');

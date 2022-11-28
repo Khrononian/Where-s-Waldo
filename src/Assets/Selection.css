@@ -1,14 +1,23 @@
 nav {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
-    padding: .4em;
+    width: 100%;
 }
 
 nav * {
     color: white;
     font-size: 1.6rem;
     text-decoration: none;
+}
+
+.image-list, .image-list div {
+    display: flex;
+    align-items: center;
+}
+
+.image-list div p {
+    font-size: 1.4rem;
 }
 
 .nav-img {
@@ -36,4 +45,8 @@ nav * {
   
 .block button:hover {
     background: lightblue
+}
+
+.cover {
+    display: block;
 }

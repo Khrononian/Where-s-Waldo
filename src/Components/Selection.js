@@ -11,6 +11,8 @@ const Selection = (props, { selected }) => {
     const [mousePos, setMousePos] = useState({})
     const [boxHeight, setBoxHeight] = useState(10)
     const [trigger, setTrigger] = useState(false)
+    const [characterCount, setCharacterCount] = useState(3)
+    const [name, setName] = useState('')
 
     const firebaseConfig = {
         apiKey: "AIzaSyB_ufhPEnldDS-sbGJKUcO-gRkCfyRbtx0",
@@ -29,10 +31,6 @@ const Selection = (props, { selected }) => {
         height: `${boxHeight}px`
     }
 
-    const FoundCharacter = {
-        name: ''
-    }
-
     const selectedData = async event => {
         const characterData = await getDocs(collection(db, `${location.state.console}`))
 
@@ -40,11 +38,19 @@ const Selection = (props, { selected }) => {
         // TRY AUTH TO SEE IF IT CHANGES ANYTHING
         characterData.forEach((doc) => {
             console.log(event, mousePos, doc.data())
-            if (mousePos.x >= doc.data().firstX && mousePos.x <= doc.data().secondX) {
-                FoundCharacter.name = event.target.innerText
+            // console.log('TEST', characterCount)
+            if (characterCount === 1) {
+                console.log('INSIDE SELECTION')
+            }
+            if (mousePos.x >= doc.data().firstX && mousePos.x <= doc.data().secondX &&
+            event.target.innerText === doc.data().name) {
+                setName(event.target.innerText)
                 setTrigger(true)
+                setCharacterCount(count => count - 1)
+                if (event.target.parentElement.children.length === 1) event.target.parentElement.remove()
                 event.target.remove()
             } 
+            
         }) 
         
         
@@ -82,16 +88,29 @@ const Selection = (props, { selected }) => {
 
     return (
         <div>
-            <nav >
+            <nav style={{position: 'relative'}}>
                 <div>
                     <Link to={'/'}>Home</Link>
                 </div>
-                <Timer />
-                <div>
-                    <img className="nav-img" src={location.state.left} alt='Selected'/>
-                    <img className="nav-img" src={location.state.middle} alt='Selected'/>
-                    <img className="nav-img" src={location.state.right} alt='Selected'/>
+                <Timer characterCount={characterCount}/>
+                <div className="image-list">
+                    <div >
+                        <img className="nav-img" src={location.state.left} alt='Selected'/>
+                        <p>{location.state.characters[0]}</p>
+                    </div>
+                    <div >
+                        <img className="nav-img" src={location.state.middle} alt='Selected'/>
+                        <p>{location.state.characters[1]}</p>
+                    </div>
+                    <div >
+                        <img className="nav-img" src={location.state.right} alt='Selected'/>
+                        <p>{location.state.characters[2]}</p>
+                    </div>
+                    
+                    
+                    
                 </div>
+                
             </nav>
             <div className="" style={ContainerStyle}>
                 <img onClick={getClickData} className='image' src={window.localStorage.getItem('selected')} alt="Xbox" />
@@ -100,14 +119,42 @@ const Selection = (props, { selected }) => {
                     <button className='btns' onClick={selectedData}>{location.state.characters[1]}</button>
                     <button className='btns' onClick={selectedData}>{location.state.characters[2]}</button>
                 </div>
-                <div className="" >
-                    {trigger === false ? 'Wrong character, keep looking!' : 
-                    `You found ${FoundCharacter.name}`
-                    }
-                    {console.log(trigger)}
+                <div className="cover">
+                    <div className="first">
+                        <h3>Time</h3>
+                        <p>{}</p>
+                        <Link to={'/'}>Restart</Link>
+                    </div>
+                    <div className="second">
+                        <h3>High Scores</h3>
+                        <ol>
+                            <li>q</li>
+                            <li>q</li>
+                            <li>q</li>
+                            <li>q</li>
+                            <li>q</li>
+                        </ol>
+                    </div>
                 </div>
+                {/* USE ANOTHER WRAPPER AND SET THE FIRST WRAPPER TO ABSOLUTE AND THE SECOND TO FIXED */}
             </div>
-            
+            {/* <div className="cover">
+                <div className="first">
+                    <h5>Time</h5>
+                    <p>{}</p>
+                    <Link to={'/'}>Restart</Link>
+                </div>
+                <div className="second">
+                    <h5>High Scores</h5>
+                    <ol>
+                        <li>q</li>
+                        <li>q</li>
+                        <li>q</li>
+                        <li>q</li>
+                        <li>q</li>
+                    </ol>
+                </div>
+            </div> */}
         </div>
     )
 }

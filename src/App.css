@@ -1,9 +1,13 @@
 * {
   margin: 0;
   padding: 0;
-  background: #09203F;
-  /* height: 100%; */
+  scroll-behavior: smooth;
   min-height: 100%;
+}
+
+body {
+  background: #09203F;
+  overflow-x: hidden;
 }
 
 header {

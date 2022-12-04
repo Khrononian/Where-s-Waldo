@@ -9,7 +9,7 @@ const Timer = ({ characterCount }) => {
             if (characterCount === 0) {
                 clearInterval(stopWatch)
                 console.log(window.localStorage)
-                convertToSeconds(window.localStorage.getItem('Time').split(':'))
+                convertToSeconds(window.localStorage.getItem('conversion').split(':'))
             }
             else setCounter(count => count + 1)
             

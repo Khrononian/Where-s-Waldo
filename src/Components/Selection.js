@@ -13,6 +13,15 @@ const Selection = (props, { selected }) => {
     const [trigger, setTrigger] = useState(false)
     const [characterCount, setCharacterCount] = useState(3)
     const [name, setName] = useState('')
+    const [board, setBoard] = useState([])
+
+    useEffect(() => {
+        if (characterCount === 0) {
+            setTrigger(true)
+            window.scrollTo({top: 0, behavior: 'smooth'})
+            document.body.style.overflowY = 'hidden'
+        }
+    }, [characterCount])
 
     const firebaseConfig = {
         apiKey: "AIzaSyB_ufhPEnldDS-sbGJKUcO-gRkCfyRbtx0",
@@ -30,24 +39,70 @@ const Selection = (props, { selected }) => {
         position: 'relative',
         height: `${boxHeight}px`
     }
-
+    // const board = []
     const selectedData = async event => {
         const characterData = await getDocs(collection(db, `${location.state.console}`))
-
+        const leaderBoard = await getDocs(collection(db, 'Leaderboard'))
+        
         // USE THIS FOR THE NAME OF THE BUTTON CLICKED (EVENT.TARGET.INNERTEXT)
         // TRY AUTH TO SEE IF IT CHANGES ANYTHING
+        
+        const getLeaderBoard = async () => {
+            
+
+            leaderBoard.forEach((doc) => {
+                // for (const [key, val] of Object.entries(doc.data())) {
+                //     board.push({key: val})
+                //     console.log('NEW TEST', key, val, board)
+                // }
+                const data = Object.entries(doc.data())
+
+                console.log(data)
+            })
+        }
+        // leaderBoard.forEach((doc) => {
+        //                 for (const [key, val] of Object.entries(doc.data())) {
+        //                     board.push({[`${key}`]: val})
+        //                     console.log('NEW TEST', key, val, board)
+        //                 }
+        //             })
+
+        leaderBoard.forEach((doc) => {
+            // for (const [key, val] of Object.entries(doc.data())) {
+            //     board.push({key: val})
+            //     console.log('NEW TEST', key, val, board)
+            // }
+            
+            // FIND A WAY TO RENDER ARRAY OF OBJECTS
+            for (const [key, val] of Object.entries(doc.data())) {
+                // board.push({[`${key}`]: val})
+                setBoard(prevBoard => [...prevBoard, {[`${key}`]: val}])
+                console.log('NEW TEST', key, val, board)
+            }
+        })
         characterData.forEach((doc) => {
             console.log(event, mousePos, doc.data())
-            // console.log('TEST', characterCount)
+            // leaderBoard.forEach((doc) => {
+            //     // board.push(doc.data())
+            //     const array = []
+            //     for (const [key, val] of Object.entries(doc.data())) {
+            //         console.log('NEW TEST', key, val, array)
+            //         array.push({key: val})
+            //     }
+            // })
             if (characterCount === 1) {
                 console.log('INSIDE SELECTION')
             }
             if (mousePos.x >= doc.data().firstX && mousePos.x <= doc.data().secondX &&
             event.target.innerText === doc.data().name) {
                 setName(event.target.innerText)
-                setTrigger(true)
+                // setTrigger(true)
                 setCharacterCount(count => count - 1)
-                if (event.target.parentElement.children.length === 1) event.target.parentElement.remove()
+                if (event.target.parentElement.children.length === 1) {
+                    event.target.parentElement.remove()
+                    // getLeaderBoard()
+                    
+                }
                 event.target.remove()
             } 
             
@@ -57,6 +112,8 @@ const Selection = (props, { selected }) => {
         // USE GETDOCS TO ACCESS CHARACTER POSITIONING NUMS
         // ALSO PUT THE NAME OF THE SELECTED CONSOLE IN THE LOCATON PASS
     }
+
+    const resetScroll = () => document.body.style.overflowY = 'auto'
 
 
     // NUMS FOR CHARACTERS
@@ -119,42 +176,48 @@ const Selection = (props, { selected }) => {
                     <button className='btns' onClick={selectedData}>{location.state.characters[1]}</button>
                     <button className='btns' onClick={selectedData}>{location.state.characters[2]}</button>
                 </div>
-                <div className="cover">
+                {trigger === true ? <div className="cover">
                     <div className="first">
                         <h3>Time</h3>
                         <p>{}</p>
-                        <Link to={'/'}>Restart</Link>
+                        <Link to={'/'} onClick={resetScroll}>Restart</Link>
                     </div>
                     <div className="second">
                         <h3>High Scores</h3>
+                        {console.log('RETURN', board)}
                         <ol>
-                            <li>q</li>
-                            <li>q</li>
-                            <li>q</li>
-                            <li>q</li>
-                            <li>q</li>
+                            {
+                                board.map((element, index) => {
+                                    return (
+                                        
+                                        <li key={index}>{element}</li>
+                                        
+                                    )
+                                })
+                            }
                         </ol>
                     </div>
-                </div>
-                {/* USE ANOTHER WRAPPER AND SET THE FIRST WRAPPER TO ABSOLUTE AND THE SECOND TO FIXED */}
+                </div> : null}
+                {/* <div className="div"></div>
+                <div className="cover">
+                        <div className="first">
+                            <h3>Time</h3>
+                            <p>{123}</p>
+                            <Link to={'/'} onClick={resetScroll}>Restart</Link>
+                        </div>
+                        <div className="second">
+                            <h3>High Scores</h3>
+                            <ol>
+                                <li>q</li>
+                                <li>q</li>
+                                <li>q</li>
+                                <li>q</li>
+                                <li>q</li>
+                            </ol>
+                        </div>
+                </div> */}
             </div>
-            {/* <div className="cover">
-                <div className="first">
-                    <h5>Time</h5>
-                    <p>{}</p>
-                    <Link to={'/'}>Restart</Link>
-                </div>
-                <div className="second">
-                    <h5>High Scores</h5>
-                    <ol>
-                        <li>q</li>
-                        <li>q</li>
-                        <li>q</li>
-                        <li>q</li>
-                        <li>q</li>
-                    </ol>
-                </div>
-            </div> */}
+            
         </div>
     )
 }

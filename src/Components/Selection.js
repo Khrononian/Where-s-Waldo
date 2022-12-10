@@ -3,7 +3,6 @@ import Timer from "./Timer";
 import { useLocation, Link } from "react-router-dom";
 import { initializeApp } from 'firebase/app'
 import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore'
-import { getAnalytics } from 'firebase/analytics'
 import '../Assets/Selection.css'
 
 const Selection = (props, { selected }) => {
@@ -12,7 +11,6 @@ const Selection = (props, { selected }) => {
     const [boxHeight, setBoxHeight] = useState(10)
     const [trigger, setTrigger] = useState(false)
     const [characterCount, setCharacterCount] = useState(3)
-    const [name, setName] = useState('')
     const [board, setBoard] = useState([])
 
     useEffect(() => {
@@ -39,78 +37,53 @@ const Selection = (props, { selected }) => {
         position: 'relative',
         height: `${boxHeight}px`
     }
-    // const board = []
+
     const selectedData = async event => {
         const characterData = await getDocs(collection(db, `${location.state.console}`))
         const leaderBoard = await getDocs(collection(db, 'Leaderboard'))
         
         // USE THIS FOR THE NAME OF THE BUTTON CLICKED (EVENT.TARGET.INNERTEXT)
-        // TRY AUTH TO SEE IF IT CHANGES ANYTHING
         
         const getLeaderBoard = async () => {
-            
-
             leaderBoard.forEach((doc) => {
                 // for (const [key, val] of Object.entries(doc.data())) {
                 //     board.push({key: val})
                 //     console.log('NEW TEST', key, val, board)
                 // }
-                const data = Object.entries(doc.data())
-
-                console.log(data)
+                const timeSplit = doc.data().time
+                console.log(doc.data().time, timeSplit.split(':'), Number(timeSplit.split(':').slice(2)))
+                // FIND A WAY TO SET THE PLAYER'S TIME INTO THE STATE ARRAY
+                // AND THEN POST THE DATA TO THE LEADERBACK (ALSO BACKEND) BASED OFF OF THE INDEX OF ARRAY
+                if (Number(window.localStorage.getItem('Time').split(':').slice(2)) < Number(timeSplit.split(':').slice(2)) ) console.log('WORK WORK', Number(window.localStorage.getItem('Time').split(':').slice(2)))
+                setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].sort((a, b) => a.time - b.time))
             })
         }
-        // leaderBoard.forEach((doc) => {
-        //                 for (const [key, val] of Object.entries(doc.data())) {
-        //                     board.push({[`${key}`]: val})
-        //                     console.log('NEW TEST', key, val, board)
-        //                 }
-        //             })
 
-        leaderBoard.forEach((doc) => {
-            // for (const [key, val] of Object.entries(doc.data())) {
-            //     board.push({key: val})
-            //     console.log('NEW TEST', key, val, board)
-            // }
-            
-            // FIND A WAY TO RENDER ARRAY OF OBJECTS
-            for (const [key, val] of Object.entries(doc.data())) {
-                // board.push({[`${key}`]: val})
-                setBoard(prevBoard => [...prevBoard, {[`${key}`]: val}])
-                console.log('NEW TEST', key, val, board)
-            }
-        })
         characterData.forEach((doc) => {
             console.log(event, mousePos, doc.data())
-            // leaderBoard.forEach((doc) => {
-            //     // board.push(doc.data())
-            //     const array = []
-            //     for (const [key, val] of Object.entries(doc.data())) {
-            //         console.log('NEW TEST', key, val, array)
-            //         array.push({key: val})
-            //     }
-            // })
+            console.log('BOARD', board)
             if (characterCount === 1) {
                 console.log('INSIDE SELECTION')
             }
             if (mousePos.x >= doc.data().firstX && mousePos.x <= doc.data().secondX &&
             event.target.innerText === doc.data().name) {
-                setName(event.target.innerText)
                 // setTrigger(true)
                 setCharacterCount(count => count - 1)
                 if (event.target.parentElement.children.length === 1) {
                     event.target.parentElement.remove()
-                    // getLeaderBoard()
+                    getLeaderBoard()
                     
                 }
                 event.target.remove()
             } 
             
         }) 
-        
-        
-        // USE GETDOCS TO ACCESS CHARACTER POSITIONING NUMS
-        // ALSO PUT THE NAME OF THE SELECTED CONSOLE IN THE LOCATON PASS
+    }
+
+    const convertToSeconds = ([minutes, seconds]) => {
+        const conversion = Number(minutes) * 60 + Number(seconds)
+        console.log(Number(minutes), seconds)
+        window.localStorage.setItem('convertedTime', `${conversion} seconds`)
     }
 
     const resetScroll = () => document.body.style.overflowY = 'auto'
@@ -149,7 +122,7 @@ const Selection = (props, { selected }) => {
                 <div>
                     <Link to={'/'}>Home</Link>
                 </div>
-                <Timer characterCount={characterCount}/>
+                <Timer characterCount={characterCount} convertToSeconds={convertToSeconds}/>
                 <div className="image-list">
                     <div >
                         <img className="nav-img" src={location.state.left} alt='Selected'/>
@@ -179,21 +152,20 @@ const Selection = (props, { selected }) => {
                 {trigger === true ? <div className="cover">
                     <div className="first">
                         <h3>Time</h3>
-                        <p>{}</p>
+                        <p>You found them all in {window.localStorage.getItem('convertedTime')}!</p>
                         <Link to={'/'} onClick={resetScroll}>Restart</Link>
                     </div>
                     <div className="second">
                         <h3>High Scores</h3>
                         {console.log('RETURN', board)}
                         <ol>
-                            {
-                                board.map((element, index) => {
-                                    return (
-                                        
-                                        <li key={index}>{element}</li>
-                                        
-                                    )
-                                })
+                            {board.map((element, index) => {
+                                console.log(element, index)
+                                return (
+                                    
+                                    <li key={index}>{element.name}: {`00:00:0${element.time}`}</li>
+                                    
+                                )})
                             }
                         </ol>
                     </div>

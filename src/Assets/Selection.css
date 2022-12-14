@@ -57,7 +57,7 @@ nav * {
     backdrop-filter: blur(10px);
 }
 
-.cover {
+.cover, .form {
     position: absolute;
     top: 50%;
     bottom: 0;

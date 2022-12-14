@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Timer from "./Timer";
 import { useLocation, Link } from "react-router-dom";
 import { initializeApp } from 'firebase/app'
@@ -8,18 +8,24 @@ import '../Assets/Selection.css'
 const Selection = (props, { selected }) => {
     const location = useLocation()
     const [mousePos, setMousePos] = useState({})
-    const [boxHeight, setBoxHeight] = useState(10)
     const [trigger, setTrigger] = useState(false)
+    const [active, setActive] = useState(false)
     const [characterCount, setCharacterCount] = useState(3)
     const [board, setBoard] = useState([])
+    const [boardName, setBoardName] = useState({name: ''})
+    const inputRef = useRef()
 
     useEffect(() => {
         if (characterCount === 0) {
-            setTrigger(true)
+            setActive(true)
             window.scrollTo({top: 0, behavior: 'smooth'})
             document.body.style.overflowY = 'hidden'
         }
     }, [characterCount])
+
+    useEffect(() => {
+
+    }, [inputRef])
 
     const firebaseConfig = {
         apiKey: "AIzaSyB_ufhPEnldDS-sbGJKUcO-gRkCfyRbtx0",
@@ -35,16 +41,10 @@ const Selection = (props, { selected }) => {
     // console.log('FIREBASE', analytics)
     const ContainerStyle = {
         position: 'relative',
-        height: `${boxHeight}px`
+        height: 10
     }
-
-    const selectedData = async event => {
-        const characterData = await getDocs(collection(db, `${location.state.console}`))
-        const leaderBoard = await getDocs(collection(db, 'Leaderboard'))
-        
-        // USE THIS FOR THE NAME OF THE BUTTON CLICKED (EVENT.TARGET.INNERTEXT)
-        
-        const getLeaderBoard = async () => {
+const getLeaderBoard = async () => {
+            const leaderBoard = await getDocs(collection(db, 'Leaderboard'))
             leaderBoard.forEach((doc) => {
                 // for (const [key, val] of Object.entries(doc.data())) {
                 //     board.push({key: val})
@@ -54,11 +54,23 @@ const Selection = (props, { selected }) => {
                 console.log(doc.data().time, timeSplit.split(':'), Number(timeSplit.split(':').slice(2)))
                 // FIND A WAY TO SET THE PLAYER'S TIME INTO THE STATE ARRAY
                 // AND THEN POST THE DATA TO THE LEADERBACK (ALSO BACKEND) BASED OFF OF THE INDEX OF ARRAY
-                if (Number(window.localStorage.getItem('Time').split(':').slice(2)) < Number(timeSplit.split(':').slice(2)) ) console.log('WORK WORK', Number(window.localStorage.getItem('Time').split(':').slice(2)))
+                if (Number(window.localStorage.getItem('Time').split(':').slice(2)) < Number(timeSplit.split(':').slice(2))
+                ) {
+                    console.log('WORK WORK', Number(window.localStorage.getItem('Time').split(':').slice(2)))
+                    setBoard(prevBoard => [...prevBoard].concat({name: boardName.name, time: Number(window.localStorage.getItem('Time').split(':').slice(2))}))
+                    console.log('WORK TWO', board)
+                }
+                // setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].sort((a, b) => a.time - b.time))
                 setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].sort((a, b) => a.time - b.time))
+                // setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].sort((a, b) => a.time - b.time).filter((element, index) => index !== prevBoard.findIndex(elem => elem.time === element.time && elem.name === element.name)))
+                setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].filter((element, index) => index === prevBoard.findIndex(elem => elem.time === element.time && elem.name === element.name)))
+                
             })
         }
-
+    const selectedData = async event => {
+        const characterData = await getDocs(collection(db, `${location.state.console}`))
+        
+        
         characterData.forEach((doc) => {
             console.log(event, mousePos, doc.data())
             console.log('BOARD', board)
@@ -71,7 +83,7 @@ const Selection = (props, { selected }) => {
                 setCharacterCount(count => count - 1)
                 if (event.target.parentElement.children.length === 1) {
                     event.target.parentElement.remove()
-                    getLeaderBoard()
+                    // getLeaderBoard()
                     
                 }
                 event.target.remove()
@@ -82,13 +94,31 @@ const Selection = (props, { selected }) => {
 
     const convertToSeconds = ([minutes, seconds]) => {
         const conversion = Number(minutes) * 60 + Number(seconds)
-        console.log(Number(minutes), seconds)
+        console.log(Number(minutes), seconds, conversion)
         window.localStorage.setItem('convertedTime', `${conversion} seconds`)
+
+        return window.localStorage.getItem('convertedTime')
     }
 
     const resetScroll = () => document.body.style.overflowY = 'auto'
 
+    const setBoardUsername = event => {
+        setBoardName({
+            ...boardName,
+            name: event.target.value
+        })
+        console.log('NEW NAME', boardName)
+    }
 
+    const submitFormData = event => {
+        event.preventDefault();
+        
+        setTrigger(true)
+        console.log('FORM', event.target, event, event.target[0].value, inputRef, inputRef.current.value)
+        getLeaderBoard()
+        // setActive(false)
+        console.log('NAME', boardName)
+    }
     // NUMS FOR CHARACTERS
     // PS2
     // PRINCE - [X: 221, Y: 842] >= [X: 259, Y: 884]
@@ -152,7 +182,8 @@ const Selection = (props, { selected }) => {
                 {trigger === true ? <div className="cover">
                     <div className="first">
                         <h3>Time</h3>
-                        <p>You found them all in {window.localStorage.getItem('convertedTime')}!</p>
+                        <p>You found them all in {convertToSeconds(window.localStorage.getItem('conversion').split(':'))}!</p>
+                        {/* <p>{window.localStorage.getItem('Time')}</p> */}
                         <Link to={'/'} onClick={resetScroll}>Restart</Link>
                     </div>
                     <div className="second">
@@ -160,34 +191,36 @@ const Selection = (props, { selected }) => {
                         {console.log('RETURN', board)}
                         <ol>
                             {board.map((element, index) => {
-                                console.log(element, index)
+                                // console.log(element, index)
                                 return (
                                     
-                                    <li key={index}>{element.name}: {`00:00:0${element.time}`}</li>
+                                    <li key={index}>{element.name}: {/^\d$/.test(element.time.toString()) ? `00:00:0${element.time}`
+                                    : `00:00:${element.time}`}</li>
                                     
                                 )})
                             }
                         </ol>
                     </div>
-                </div> : null}
-                {/* <div className="div"></div>
-                <div className="cover">
-                        <div className="first">
-                            <h3>Time</h3>
-                            <p>{123}</p>
-                            <Link to={'/'} onClick={resetScroll}>Restart</Link>
-                        </div>
-                        <div className="second">
-                            <h3>High Scores</h3>
-                            <ol>
-                                <li>q</li>
-                                <li>q</li>
-                                <li>q</li>
-                                <li>q</li>
-                                <li>q</li>
-                            </ol>
-                        </div>
-                </div> */}
+                </div> : null}    
+                {active === true ? <div className="form">
+                    <form onSubmit={submitFormData}>
+                        <h4>You found them all in {convertToSeconds(window.localStorage.getItem('conversion').split(':'))}</h4>
+                        <p>Submit your username</p>
+                        <label>Username</label>
+                        <div className="btn">
+                            <input ref={inputRef} 
+                            type='text' 
+                            id="username" 
+                            placeholder="Enter 
+                            username" maxLength={7} 
+                            onChange={setBoardUsername}/>
+                            <button type="submit" >Submit</button>
+                        </div>    
+                    </form>
+                    </div>
+                : null
+                }
+                
             </div>
             
         </div>

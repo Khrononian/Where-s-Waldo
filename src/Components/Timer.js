@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 
 const Timer = ({ characterCount, convertToSeconds }) => {
     const [counter, setCounter] = useState(0);
-    const [time, setTime] = useState()
     
     useEffect(() => {
         const stopWatch = setInterval(() => {
             if (characterCount === 0) {
+                
                 clearInterval(stopWatch)
-                console.log(window.localStorage)
                 convertToSeconds(window.localStorage.getItem('conversion').split(':'))
-                console.log(window,localStorage.getItem('convertedTime'))
+                console.log(window.localStorage)
+                
+                console.log(window.localStorage.getItem('convertedTime'))
                 // CONVERTED TIEM WORKS
             }
             else setCounter(count => count + 1)
@@ -20,8 +21,6 @@ const Timer = ({ characterCount, convertToSeconds }) => {
             clearInterval(stopWatch)
         }
     }, [characterCount])
-    console.log('FOOD', characterCount)
-    // if (characterCount === 0) setCounter(0)
     const timer = () => {
         const getSeconds = `0${counter % 60}`.slice(-2);
         const getMinutes = `0${Math.floor(counter / 60) % 60}`.slice(-2)

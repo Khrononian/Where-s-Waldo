@@ -24,8 +24,15 @@ const Selection = (props, { selected }) => {
     }, [characterCount])
 
     useEffect(() => {
+        const startBoard = async () => {
+            const leaderBoard = await getDocs(collection(db, 'Leaderboard'))
 
-    }, [inputRef])
+            leaderBoard.forEach((doc) => {
+                setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: doc.data().time  }])
+            })
+        }
+        startBoard()
+    }, [])
 
     const firebaseConfig = {
         apiKey: "AIzaSyB_ufhPEnldDS-sbGJKUcO-gRkCfyRbtx0",
@@ -43,30 +50,38 @@ const Selection = (props, { selected }) => {
         position: 'relative',
         height: 10
     }
-const getLeaderBoard = async () => {
-            const leaderBoard = await getDocs(collection(db, 'Leaderboard'))
-            leaderBoard.forEach((doc) => {
-                // for (const [key, val] of Object.entries(doc.data())) {
-                //     board.push({key: val})
-                //     console.log('NEW TEST', key, val, board)
-                // }
-                const timeSplit = doc.data().time
-                console.log(doc.data().time, timeSplit.split(':'), Number(timeSplit.split(':').slice(2)))
-                // FIND A WAY TO SET THE PLAYER'S TIME INTO THE STATE ARRAY
-                // AND THEN POST THE DATA TO THE LEADERBACK (ALSO BACKEND) BASED OFF OF THE INDEX OF ARRAY
-                if (Number(window.localStorage.getItem('Time').split(':').slice(2)) < Number(timeSplit.split(':').slice(2))
-                ) {
-                    console.log('WORK WORK', Number(window.localStorage.getItem('Time').split(':').slice(2)))
-                    setBoard(prevBoard => [...prevBoard].concat({name: boardName.name, time: Number(window.localStorage.getItem('Time').split(':').slice(2))}))
-                    console.log('WORK TWO', board)
-                }
-                // setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].sort((a, b) => a.time - b.time))
-                setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].sort((a, b) => a.time - b.time))
-                // setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].sort((a, b) => a.time - b.time).filter((element, index) => index !== prevBoard.findIndex(elem => elem.time === element.time && elem.name === element.name)))
-                setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].filter((element, index) => index === prevBoard.findIndex(elem => elem.time === element.time && elem.name === element.name)))
-                
-            })
-        }
+    const getLeaderBoard = async () => {
+        // ACCESS DIFFERENT LEADERBOARDS BASED ON CONSOLE NAME (USE LOCATION)
+        // FIND THE LAST ELEMENT IN ARRAY AND MATCH THE NAME WITH THE ONE IN LEADERBOARD
+
+        const leaderBoard = await getDocs(collection(db, 'Leaderboard'))
+        leaderBoard.forEach((doc) => {
+            console.log('ANOTHER, LENGTH', doc.data())
+            const timeSplit = doc.data().time
+            console.log(doc.data().time, timeSplit.split(':'), timeSplit.split(':').slice(2), Number(timeSplit.split(':').slice(2)), window.localStorage.getItem('Time').split(':').slice(1)[0])
+            // FIND A WAY TO SET THE PLAYER'S TIME INTO THE STATE ARRAY
+            // AND THEN POST THE DATA TO THE LEADERBACK (ALSO BACKEND) BASED OFF OF THE INDEX OF ARRAY
+            if (Number(window.localStorage.getItem('Time').split(':').slice(2)) < Number(timeSplit.split(':').slice(2))
+            && Number(window.localStorage.getItem('Time').split(':').slice(1)[0]) === 0 ) {
+                console.log('WORK WORK', Number(window.localStorage.getItem('Time').split(':').slice(2)))
+                // setBoard(prevBoard => [...prevBoard].concat({name: boardName.name, time: Number(window.localStorage.getItem('Time').split(':').slice(2))}))
+                setBoard(prevBoard => [...prevBoard].concat({name: boardName.name, time: window.localStorage.getItem('Time') }))
+                console.log('WORK TWO', board)
+            } else if (convertToSeconds([Number(window.localStorage.getItem('Time').split(':').slice(1)[0]), Number(window.localStorage.getItem('Time').split(':').slice(1)[1]) ])
+            < convertToSeconds([Number(timeSplit.split(':').slice(1)[0]), Number(timeSplit.split(':').slice(1)[1])]) ) {
+                console.log('WAVE')
+
+                setBoard(prevBoard => [...prevBoard].concat({name: boardName.name, time: window.localStorage.getItem('Time') }))
+            }
+            
+            // setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }])
+            setBoard(prevBoard => [...prevBoard].sort((a, b) => a.time.localeCompare(b.time)))
+
+            setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].filter((element, index) => index === prevBoard.findIndex(elem => elem.time === element.time && elem.name === element.name)))
+            
+        })
+    }
+    
     const selectedData = async event => {
         const characterData = await getDocs(collection(db, `${location.state.console}`))
         
@@ -95,7 +110,7 @@ const getLeaderBoard = async () => {
     const convertToSeconds = ([minutes, seconds]) => {
         const conversion = Number(minutes) * 60 + Number(seconds)
         console.log(Number(minutes), seconds, conversion)
-        window.localStorage.setItem('convertedTime', `${conversion} seconds`)
+        window.localStorage.setItem('convertedTime', `${conversion}`)
 
         return window.localStorage.getItem('convertedTime')
     }
@@ -107,14 +122,13 @@ const getLeaderBoard = async () => {
             ...boardName,
             name: event.target.value
         })
-        console.log('NEW NAME', boardName)
     }
 
     const submitFormData = event => {
         event.preventDefault();
         
         setTrigger(true)
-        console.log('FORM', event.target, event, event.target[0].value, inputRef, inputRef.current.value)
+        // console.log('FORM', event.target, event, event.target[0].value, inputRef, inputRef.current.value)
         getLeaderBoard()
         // setActive(false)
         console.log('NAME', boardName)
@@ -145,7 +159,8 @@ const getLeaderBoard = async () => {
 
         setMousePos({ x: event.pageX, y: event.pageY})
     }
-
+    let singleDigit = /^\d$/
+    singleDigit.lastIndex = 8
     return (
         <div>
             <nav style={{position: 'relative'}}>
@@ -182,7 +197,7 @@ const getLeaderBoard = async () => {
                 {trigger === true ? <div className="cover">
                     <div className="first">
                         <h3>Time</h3>
-                        <p>You found them all in {convertToSeconds(window.localStorage.getItem('conversion').split(':'))}!</p>
+                        <p>You found them all in {convertToSeconds(window.localStorage.getItem('conversion').split(':'))} seconds!</p>
                         {/* <p>{window.localStorage.getItem('Time')}</p> */}
                         <Link to={'/'} onClick={resetScroll}>Restart</Link>
                     </div>
@@ -191,11 +206,13 @@ const getLeaderBoard = async () => {
                         {console.log('RETURN', board)}
                         <ol>
                             {board.map((element, index) => {
-                                // console.log(element, index)
                                 return (
-                                    
-                                    <li key={index}>{element.name}: {/^\d$/.test(element.time.toString()) ? `00:00:0${element.time}`
-                                    : `00:00:${element.time}`}</li>
+
+                                    // <li key={index}>{element.name}: { singleDigit.test(element.time.toString()) ? `00:00:0${element.time}`
+                                    // : Number(window.localStorage.getItem('Time').split(':').slice(1)[0]) === 0 && element.name === boardName.name ? `${element.time}`
+                                    // : Number(window.localStorage.getItem('Time').split(':').slice(1)[0]) !== 0 && element.name === boardName.name ? `${element.time}`
+                                    // : `${element.time}`}</li>
+                                    <li key={index}>{element.name}: {element.time}</li>
                                     
                                 )})
                             }
@@ -204,7 +221,7 @@ const getLeaderBoard = async () => {
                 </div> : null}    
                 {active === true ? <div className="form">
                     <form onSubmit={submitFormData}>
-                        <h4>You found them all in {convertToSeconds(window.localStorage.getItem('conversion').split(':'))}</h4>
+                        <h4>You found them all in {convertToSeconds(window.localStorage.getItem('conversion').split(':'))} seconds!</h4>
                         <p>Submit your username</p>
                         <label>Username</label>
                         <div className="btn">

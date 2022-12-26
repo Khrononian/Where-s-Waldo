@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Timer from "./Timer";
 import { useLocation, Link } from "react-router-dom";
 import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore'
+import { getFirestore, collection, getDocs, setDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore'
 import '../Assets/Selection.css'
 
 const Selection = (props, { selected }) => {
@@ -53,6 +53,7 @@ const Selection = (props, { selected }) => {
     const getLeaderBoard = async () => {
         // ACCESS DIFFERENT LEADERBOARDS BASED ON CONSOLE NAME (USE LOCATION)
         // FIND THE LAST ELEMENT IN ARRAY AND MATCH THE NAME WITH THE ONE IN LEADERBOARD
+        const updatedName = doc(db, 'Leaderboard', inputRef.current.value)
 
         const leaderBoard = await getDocs(collection(db, 'Leaderboard'))
         leaderBoard.forEach((doc) => {
@@ -64,7 +65,6 @@ const Selection = (props, { selected }) => {
             if (Number(window.localStorage.getItem('Time').split(':').slice(2)) < Number(timeSplit.split(':').slice(2))
             && Number(window.localStorage.getItem('Time').split(':').slice(1)[0]) === 0 ) {
                 console.log('WORK WORK', Number(window.localStorage.getItem('Time').split(':').slice(2)))
-                // setBoard(prevBoard => [...prevBoard].concat({name: boardName.name, time: Number(window.localStorage.getItem('Time').split(':').slice(2))}))
                 setBoard(prevBoard => [...prevBoard].concat({name: boardName.name, time: window.localStorage.getItem('Time') }))
                 console.log('WORK TWO', board)
             } else if (convertToSeconds([Number(window.localStorage.getItem('Time').split(':').slice(1)[0]), Number(window.localStorage.getItem('Time').split(':').slice(1)[1]) ])
@@ -73,18 +73,26 @@ const Selection = (props, { selected }) => {
 
                 setBoard(prevBoard => [...prevBoard].concat({name: boardName.name, time: window.localStorage.getItem('Time') }))
             }
-            
-            // setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }])
             setBoard(prevBoard => [...prevBoard].sort((a, b) => a.time.localeCompare(b.time)))
 
             setBoard(prevBoard => [...prevBoard, {name: doc.data().name, time: Number(timeSplit.split(':').slice(2)) }].filter((element, index) => index === prevBoard.findIndex(elem => elem.time === element.time && elem.name === element.name)))
             
+            if (board.length > 15 && board[board.length - 1].name === doc.data().name) console.log('JUICY')
+            // USE THE ABOVE CONDITION TO DELETE LAST INDEX OF ARRAY
         })
+        await setDoc(updatedName, {
+            name: inputRef.current.value,
+            time: window.localStorage.getItem('Time')
+        })
+        
+        if (board.length > 21) {
+            console.log('LAST INDEX', board[board.length - 1])
+            deleteDoc(doc(db, 'Leaderboard', board[board.length - 1].name))
+        }
     }
     
     const selectedData = async event => {
         const characterData = await getDocs(collection(db, `${location.state.console}`))
-        
         
         characterData.forEach((doc) => {
             console.log(event, mousePos, doc.data())
@@ -94,15 +102,13 @@ const Selection = (props, { selected }) => {
             }
             if (mousePos.x >= doc.data().firstX && mousePos.x <= doc.data().secondX &&
             event.target.innerText === doc.data().name) {
-                // setTrigger(true)
-                setCharacterCount(count => count - 1)
-                if (event.target.parentElement.children.length === 1) {
-                    event.target.parentElement.remove()
-                    // getLeaderBoard()
-                    
-                }
                 event.target.remove()
-            } 
+                setCharacterCount(count => count - 1)
+            } else if (mousePos.x >= doc.data().halfX && mousePos.x <= doc.data().fullX &&
+            event.target.innerText === doc.data().name) {
+                setCharacterCount(count => count - 1)
+                event.target.remove()
+            }
             
         }) 
     }
@@ -135,24 +141,24 @@ const Selection = (props, { selected }) => {
     }
     // NUMS FOR CHARACTERS
     // PS2
-    // PRINCE - [X: 221, Y: 842] >= [X: 259, Y: 884]
-    // KRATOS - [X: 164, Y: 1147] >= [X: 226, Y: 1210]
-    // DAXTER - [X: 842, Y: 1062] >= [X: 857, Y: 1086]
+    // PRINCE - [X: 447, Y: 1584] >= [X: 525, Y: 1666]
+    // KRATOS - [X: 331, Y: 2227] >= [X: 466, Y: 2333]
+    // DAXTER - [X: 1720, Y: 2040] >= [X: 1747, Y: 2080]
 
     // XBOX
-    // GUM - [X: 672, Y: 1384] >= [X: 733, Y: 1437]
-    // SPLINTER CELL - [X: 402, Y: 1113] >= [X: 431, Y: 1162]
-    // RYU - [X: 799, Y: 972] >= [X: 860, Y: 1047]
+    // GUM - [X: 1370, Y: 2696] >= [X: 1498, Y: 2796]
+    // SPLINTER CELL - [X: 818, Y: 2146] >= [X: 876, Y: 2247]
+    // RYU - [X: 1636, Y: 1853] >= [X: 1749, Y: 2009]
 
     // GameCube
-    // TOAD - [X: 306, Y: 991] >= [X: 327, Y: 1010]
-    // SHIEK - [X: 393, Y: 1347] >= [X: 439, Y: 1416]
-    // PEACH - [X: 521, Y: 1498] >= [X: 574, Y: 1568]
+    // TOAD - [X: 625, Y: 1892] >= [X: 673, Y: 1923]
+    // SHIEK - [X: 814, Y: 2645] >= [X: 896, Y: 2758]
+    // PEACH - [X: 1089, Y: 2925] >= [X: 1168, Y: 3065]
 
     // SUPER NINTENDO
-    // LINK: [X: 702, Y: 1036] >= [X: 743, Y: 1091]
-    // SAMUS: [X: 492, Y: 1473] >= [X: 573, Y: 1540]
-    // FALCO: [X: 367, Y: 1239] >= [X: 400, Y: 1269]
+    // LINK: [X: 1435, Y: 1977] >= [X: 1520, Y: 2093]
+    // SAMUS: [X: 1005, Y: 676] >= [X: 1165, Y: 3011]
+    // FALCO: [X: 750, Y: 2402] >= [X: 817, Y: 2452]
 
     const getClickData = event => {
         console.log('Data', event)
@@ -165,7 +171,7 @@ const Selection = (props, { selected }) => {
         <div>
             <nav style={{position: 'relative'}}>
                 <div>
-                    <Link to={'/'}>Home</Link>
+                    <Link to={'/'} onClick={resetScroll}>Home</Link>
                 </div>
                 <Timer characterCount={characterCount} convertToSeconds={convertToSeconds}/>
                 <div className="image-list">
@@ -189,11 +195,11 @@ const Selection = (props, { selected }) => {
             </nav>
             <div className="" style={ContainerStyle}>
                 <img onClick={getClickData} className='image' src={window.localStorage.getItem('selected')} alt="Xbox" />
-                <div className='block' style={{position: 'absolute', left: mousePos.x + 15 + 'px', top: mousePos.y - 90 + 'px', }}>
+                {characterCount !== 0 ? <div className='block' style={{position: 'absolute', left: mousePos.x + 15 + 'px', top: mousePos.y - 90 + 'px', }}>
                     <button className='btns' onClick={selectedData}>{location.state.characters[0]}</button>
                     <button className='btns' onClick={selectedData}>{location.state.characters[1]}</button>
                     <button className='btns' onClick={selectedData}>{location.state.characters[2]}</button>
-                </div>
+                </div> : null }
                 {trigger === true ? <div className="cover">
                     <div className="first">
                         <h3>Time</h3>

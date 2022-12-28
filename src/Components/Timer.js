@@ -9,10 +9,6 @@ const Timer = ({ characterCount, convertToSeconds }) => {
                 
                 clearInterval(stopWatch)
                 convertToSeconds(window.localStorage.getItem('conversion').split(':'))
-                console.log(window.localStorage)
-                
-                console.log(window.localStorage.getItem('convertedTime'))
-                // CONVERTED TIEM WORKS
             }
             else setCounter(count => count + 1)
             
@@ -20,6 +16,7 @@ const Timer = ({ characterCount, convertToSeconds }) => {
         return () => {
             clearInterval(stopWatch)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [characterCount])
     const timer = () => {
         const getSeconds = `0${counter % 60}`.slice(-2);
@@ -30,12 +27,6 @@ const Timer = ({ characterCount, convertToSeconds }) => {
         window.localStorage.setItem('Time', `${getHours}:${getMinutes}:${getSeconds}`)
         return `${getHours} : ${getMinutes} : ${getSeconds}`
     }
-
-    // const convertToSeconds = ([minutes, seconds]) => {
-    //     const conversion = Number(minutes) * 60 + Number(seconds)
-    //     console.log(Number(minutes), seconds)
-    //     window.localStorage.setItem('convertedTime', `${conversion} seconds`)
-    // }
 
     return (
         <div>

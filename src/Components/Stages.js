@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import '../Assets/Stage.css'
 
-const Stages = ({ data, image }) => {
+const Stages = ({ data }) => {
 
 
     return (
@@ -55,7 +55,7 @@ const Stages = ({ data, image }) => {
                     characters: [
                         'Toad',
                         'Sheik',
-                        'Princess Peach'
+                        'Peach'
                     ]
                 }}
                 >

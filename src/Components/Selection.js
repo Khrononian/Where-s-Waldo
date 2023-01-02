@@ -33,6 +33,7 @@ const Selection = () => {
             setActive(true)
             window.scrollTo({top: 0, behavior: 'smooth'})
             document.body.style.overflowY = 'hidden'
+            document.body.style.overflowX = 'hidden'
         }
     }, [characterCount])
 
@@ -79,14 +80,10 @@ const Selection = () => {
         const characterData = await getDocs(collection(db, `${location.state.console}`))
         
         characterData.forEach((doc) => {
-            if (mousePos.x >= doc.data().firstX && mousePos.x <= doc.data().secondX &&
+            if ((mousePos.x / window.innerWidth) * 100 >= doc.data().firstX && (mousePos.x / window.innerWidth) * 100 <= doc.data().secondX &&
             event.target.innerText === doc.data().name) {
                 event.target.remove()
                 setCharacterCount(count => count - 1)
-            } else if (mousePos.x >= doc.data().halfX && mousePos.x <= doc.data().fullX &&
-            event.target.innerText === doc.data().name) {
-                setCharacterCount(count => count - 1)
-                event.target.remove()
             }
         }) 
         setDisplay('none')
@@ -117,7 +114,10 @@ const Selection = () => {
 
     const getClickData = event => {
         setDisplay('flex')
-        setMousePos({ x: event.pageX, y: event.pageY})
+        setMousePos({ x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+        console.log('Event', event, window.innerWidth, window.innerHeight, )
+
+        console.log(mousePos.x, mousePos.y, (mousePos.x / window.innerWidth) * 100, mousePos.y < window.innerHeight ? mousePos.y / window.innerHeight * 100 : (mousePos.y / 2) > window.innerHeight ? (mousePos.y / 4) / window.innerHeight * 100 : (mousePos.y / 2) / window.innerHeight * 100)
     }
     return (
         <div>
@@ -143,7 +143,7 @@ const Selection = () => {
             </nav>
             <div style={{position: 'relative', height: 10 + 'px'}}>
                 <img onClick={getClickData} className='image' src={window.localStorage.getItem('selected')} alt="Xbox" />
-                {characterCount !== 0 ? <div className='block' style={{position: 'absolute', left: mousePos.x + 15 + 'px', top: mousePos.y - 90 + 'px', display: display}}>
+                {characterCount !== 0 ? <div className='block' style={{position: 'absolute', left: mousePos.x + 10 + 'px', top: mousePos.y , display: display}}>
                     <button className='btns' onClick={selectedData}>{location.state.characters[0]}</button>
                     <button className='btns' onClick={selectedData}>{location.state.characters[1]}</button>
                     <button className='btns' onClick={selectedData}>{location.state.characters[2]}</button>

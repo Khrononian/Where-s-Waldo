@@ -2,7 +2,6 @@
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
-  min-height: 100%;
 }
 
 body {
@@ -21,28 +20,8 @@ header {
 }
 
 .image {
-  /* object-fit: cover; */
   width: 100%;
 }
-
-/* .block {
-  display: flex;
-  flex-direction: column;
-  background: silver;
-  width: 130px;
-}
-
-.block button {
-  border-color: transparent;
-  border-bottom: 1px solid gainsboro;
-  cursor: pointer;
-  width: 130px;
-  padding: .2em;
-}
-
-.block button:hover {
-  background: lightblue
-} */
 
 .characters {
   display: flex;

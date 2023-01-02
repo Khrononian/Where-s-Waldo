@@ -136,3 +136,44 @@ nav * {
     padding: 1em 0;
     color: white;
 }
+
+@media screen and (min-width: 320px) {
+    nav {
+        align-items: center;
+        flex-direction: column;
+    }
+
+    nav div > *, .image-list div p {
+        font-size: 1.15rem;
+    }
+
+    .nav-img {
+        width: 50px;
+    }
+}
+
+@media screen and (min-width: 526px) {
+    nav {
+        justify-content: space-around;
+        flex-direction: row;
+    }
+
+    nav :first {
+        height: 34px;
+    }
+
+    nav div > *, .image-list div p {
+        font-size: 1rem;
+    }
+}
+
+@media screen and (min-width: 648px) {
+    nav div > *, .image-list div p {
+        font-size: unset;
+    }
+
+    .nav-img {
+        /* width: unset; */
+        align-items: center;
+    }
+}

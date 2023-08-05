@@ -15,7 +15,7 @@ const Selection = () => {
     const [board, setBoard] = useState([])
     const [boardName, setBoardName] = useState({name: ''})
     const [display, setDisplay] = useState('flex')
-    const inputRef = useRef()
+    const inputRef = useRef()   
     const firebaseConfig = {
         apiKey: "AIzaSyB_ufhPEnldDS-sbGJKUcO-gRkCfyRbtx0",
         authDomain: "where-s-waldo-91063.firebaseapp.com",
@@ -78,13 +78,16 @@ const Selection = () => {
 
     const selectedData = async event => {
         const characterData = await getDocs(collection(db, `${location.state.console}`))
-        
+        const imageHeight = document.querySelector('.image')
+
         characterData.forEach((doc) => {
             if ((mousePos.x / window.innerWidth) * 100 >= doc.data().firstX && (mousePos.x / window.innerWidth) * 100 <= doc.data().secondX &&
-            event.target.innerText === doc.data().name) {
+            (mousePos.y / imageHeight.height) * 100 >= doc.data().firstNewY && (mousePos.y / imageHeight.height) * 100 <= doc.data().secondNewY && event.target.innerText === doc.data().name) {
                 event.target.remove()
                 setCharacterCount(count => count - 1)
             }
+            
+            console.log('Test', doc.data().firstX, doc.data().secondX, doc.data().firstNewY, doc.data().secondNewY, imageHeight.height)
         }) 
         setDisplay('none')
     }
@@ -115,9 +118,9 @@ const Selection = () => {
     const getClickData = event => {
         setDisplay('flex')
         setMousePos({ x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
-        console.log('Event', event, window.innerWidth, window.innerHeight, )
-
-        console.log(mousePos.x, mousePos.y, (mousePos.x / window.innerWidth) * 100, mousePos.y < window.innerHeight ? mousePos.y / window.innerHeight * 100 : (mousePos.y / 2) > window.innerHeight ? (mousePos.y / 4) / window.innerHeight * 100 : (mousePos.y / 2) / window.innerHeight * 100)
+        console.log('Event', event, window.innerWidth, window.innerHeight, event.pageX, event.pageY)
+        console.log('Image dims', event, event.target.height)
+        console.log(mousePos.x, mousePos.y, (mousePos.x / window.innerWidth) * 100, (mousePos.y / event.target.height) * 100)
     }
     return (
         <div>

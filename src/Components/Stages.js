@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import '../Assets/Stage.css'
+import PS2 from '../Images/ps2.jpg'
+import Xbox from '../Images/xbox.jpg'
 
 const Stages = ({ data }) => {
 
@@ -22,7 +24,7 @@ const Stages = ({ data }) => {
                     ] 
                 }}
                 >
-                    <img className='image' src="https://cdnb.artstation.com/p/assets/images/images/028/741/389/large/pierre-roussel-ps2-phone2.jpg?1595367628" alt="Playstation 2" />
+                    <img className='image' src={PS2} alt="Playstation 2" />
                 </Link>
             </div>    
             <div>
@@ -41,7 +43,7 @@ const Stages = ({ data }) => {
                     
                 }}
                 >
-                    <img className='image' src="https://cdnb.artstation.com/p/assets/images/images/025/112/219/large/pierre-roussel-xbox-phone2.jpg?1584653417" alt="Xbox" />
+                    <img className='image' src={Xbox} alt="Xbox" />
                 </Link>
             </div>
             <div>

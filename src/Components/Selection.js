@@ -81,13 +81,13 @@ const Selection = () => {
         const imageHeight = document.querySelector('.image')
 
         characterData.forEach((doc) => {
-            if ((mousePos.x / window.innerWidth) * 100 >= doc.data().firstX && (mousePos.x / window.innerWidth) * 100 <= doc.data().secondX &&
+            if ((mousePos.x / window.innerWidth) * 100 >= doc.data().firstNewX && (mousePos.x / window.innerWidth) * 100 <= doc.data().secondNewX &&
             (mousePos.y / imageHeight.height) * 100 >= doc.data().firstNewY && (mousePos.y / imageHeight.height) * 100 <= doc.data().secondNewY && event.target.innerText === doc.data().name) {
                 event.target.remove()
                 setCharacterCount(count => count - 1)
             }
             
-            console.log('Test', doc.data().firstX, doc.data().secondX, doc.data().firstNewY, doc.data().secondNewY, imageHeight.height)
+            console.log('Test', doc.data().firstX, doc.data().secondX, doc.data().firstNewY, doc.data().secondNewY, imageHeight.width, imageHeight.height)
         }) 
         setDisplay('none')
     }
@@ -118,8 +118,8 @@ const Selection = () => {
     const getClickData = event => {
         setDisplay('flex')
         setMousePos({ x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
-        console.log('Event', event, window.innerWidth, window.innerHeight, event.pageX, event.pageY)
-        console.log('Image dims', event, event.target.height)
+        console.log('Event', window.innerWidth, window.innerHeight, event.pageX, event.pageY)
+        console.log('Image dims', event.target.height)
         console.log(mousePos.x, mousePos.y, (mousePos.x / window.innerWidth) * 100, (mousePos.y / event.target.height) * 100)
     }
     return (

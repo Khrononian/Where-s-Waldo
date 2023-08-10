@@ -1,8 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import '../Assets/Stage.css'
+// import PS2 from '../Images/ps2.jpg'
 import PS2 from '../Images/ps2.jpg'
 import Xbox from '../Images/xbox.jpg'
+import GameCube from '../Images/Gamecube.jpg'
+import Nintendo from '../Images/Nintendo.jpg'
 
 const Stages = ({ data }) => {
 
@@ -52,7 +55,7 @@ const Stages = ({ data }) => {
                 state={{
                     left: 'https://imgs.search.brave.com/RYXuFn6R77vbTvLOP3OVBWSkmfCIZsIIqA2ZWizH06o/rs:fit:840:859:1/g:ce/aHR0cHM6Ly93d3cu/cG5nbWFydC5jb20v/ZmlsZXMvMTMvU3Vw/ZXItTWFyaW8tQnJv/cy1Ub2FkLVBORy1U/cmFuc3BhcmVudC1Q/aWN0dXJlLnBuZw',
                     middle: 'https://imgs.search.brave.com/vDp892_A0lMjXx1glf1uvBwhbPYHR_KcIVoGerxETL0/rs:fit:500:583:1/g:ce/aHR0cHM6Ly93d3cu/cHVpc3NhbmNlLXpl/bGRhLmNvbS9pbWcv/bmV3cy8yMDE4LzA2/L3NoZWlrLXN1cGVy/LXNtYXNoLWJyb3Mt/dWx0aW1hdGUtYXJ0/d29ya19taW5pLnBu/Zw',
-                    right: 'https://imgs.search.brave.com/N29-nP_R7SdTDDdHJBYG2_0oegJ_ekFaSM-VQ3y7HU8/rs:fit:1200:1200:1/g:ce/aHR0cHM6Ly9pbWcu/cG5naW8uY29tL3By/aW5jZXNzLXBlYWNo/LXN1cGVyLW1hcmlv/LXdpa2ktdGhlLW1h/cmlvLWVuY3ljbG9w/ZWRpYS1wcmluY2Vz/cy1wZWFjaC1wbmct/MTIwMF8yMzk4LnBu/Zw',
+                    right: 'https://www.pngmart.com/files/2/Princess-Peach-Transparent-Background.png',
                     console: 'Gamecube',
                     characters: [
                         'Toad',
@@ -61,7 +64,7 @@ const Stages = ({ data }) => {
                     ]
                 }}
                 >
-                    <img className='image' src="https://cdnb.artstation.com/p/assets/images/images/031/111/447/large/pierre-roussel-gamecube-phone2-black.jpg?1602629588" alt="Gamecube" />
+                    <img className='image' src={GameCube} alt="Gamecube" />
                 </Link>
             </div>
             <div>
@@ -79,7 +82,7 @@ const Stages = ({ data }) => {
                     ]
                 }}
                 >
-                    <img className='image' src="https://cdna.artstation.com/p/assets/images/images/049/429/268/large/pierre-roussel-snes-phone2-us.jpg?1652460456" alt="Nintendo" />
+                    <img className='image' src={Nintendo} alt="Nintendo" />
                 </Link>
             </div>
         </div>
